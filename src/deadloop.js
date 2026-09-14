@@ -734,3 +734,99 @@ function ThemeParkComplex({ position, isNight }) {
           })}
         </group>
       </group>
+
+{/* 🎢 ৬. রোলারকোস্টার (ভেতরের সেফ পজিশনে) */}
+      <group position={[18, 0, -10]}>
+        <mesh position={[0, 8, 0]} rotation={[0.2, 0, 0.5]}><torusGeometry args={[10, 0.4, 16, 32, Math.PI * 1.5]} /><meshStandardMaterial color="#ff5500" emissive={isNight ? "#ff5500" : "#000"} emissiveIntensity={isNight ? 1 : 0} /></mesh>
+      </group>
+
+      {/* 🌳 ৭. গাছপালা (সীমানার একদম ভেতরে) */}
+      <BambooGrove position={[-28, 0, 15]} />
+      <BambooGrove position={[-25, 0, -25]} />
+      <BanyanTree position={[25, 0, 15]} />
+      <BigFlowerTree position={[0, 0, -25]} flowerColor="#ff70a6" />
+      <BigFlowerTree position={[25, 0, -25]} flowerColor="#7209b7" />
+    </group>
+  );
+}
+
+// 🏡 ৫. ক্যালিফোর্নিয়ার এস্টেট রেসিডেন্সিয়াল নেইবারহুড (A, B, C, D)
+function EastModernRollerCoaster({ isNight }) {
+  const trainRef = useRef();
+  const curve = useMemo(() => new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-42, 8, 0), new THREE.Vector3(-24, 28, -18),
+    new THREE.Vector3(0, 12, -30), new THREE.Vector3(25, 7, -15),
+    new THREE.Vector3(42, 18, 4), new THREE.Vector3(20, 10, 28),
+    new THREE.Vector3(-12, 6, 24), new THREE.Vector3(-42, 8, 0)
+  ], true, "catmullrom", 0.18), []);
+  const supportPositions = useMemo(() => curve.getPoints(10).filter((_, i) => i % 2 === 0), [curve]);
+
+  useFrame((state) => {
+    if (!trainRef.current) return;
+    const progress = (state.clock.getElapsedTime() * 0.035) % 1;
+    trainRef.current.position.copy(curve.getPointAt(progress));
+    trainRef.current.lookAt(curve.getPointAt((progress + 0.01) % 1));
+  });
+
+  return (
+    <group position={[330, 0, 95]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+        <planeGeometry args={[110, 95]} />
+        <meshStandardMaterial color="#31572c" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0.35, 0]}>
+        <tubeGeometry args={[curve, 96, 0.55, 10, true]} />
+        <meshStandardMaterial color="#ff0054" metalness={0.75} roughness={0.2} emissive="#ff0054" emissiveIntensity={isNight ? 1.6 : 0.12} />
+      </mesh>
+      {supportPositions.map((point, i) => (
+        <mesh key={`east-coaster-support-${i}`} position={[point.x, point.y / 2, point.z]}>
+          <cylinderGeometry args={[0.65, 0.85, point.y, 10]} />
+          <meshStandardMaterial color="#adb5bd" metalness={0.85} roughness={0.22} />
+        </mesh>
+      ))}
+      <mesh ref={trainRef} position={[-42, 8, 0]}>
+        <boxGeometry args={[3.2, 1.5, 5.5]} />
+        <meshStandardMaterial color="#06d6a0" metalness={0.65} roughness={0.2} />
+        <mesh position={[0, 0.85, 0]}>
+          <boxGeometry args={[2.5, 0.8, 3.6]} />
+          <meshStandardMaterial color="#dff6ff" transparent opacity={0.8} />
+        </mesh>
+      </mesh>
+      {/* <Text position={[0, 33, -25]} fontSize={3.2} color="#ffbe0b" anchorX="center">
+        EAST SKY LOOP
+      </Text> */}
+      {isNight && <pointLight position={[0, 10, 0]} color="#ff0054" intensity={3} distance={45} />}
+    </group>
+  );
+}
+
+function ModernResidentialNeighborhood({ position, rotation = [0, 0, 0], isNight, aiEvent }) {
+  const isSnow = aiEvent === 'WINTER' || aiEvent === 'SNOWFALL';
+
+  return (
+    <group position={position} rotation={rotation}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
+        <planeGeometry args={[42, 36]} />
+        <meshStandardMaterial color={isSnow ? "#e9ecef" : "#52b788"} />
+      </mesh>
+
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 14]}>
+        <planeGeometry args={[42, 6]} />
+        <meshStandardMaterial color="#343a40" />
+      </mesh>
+
+      {/* মডার্ন ভিলা ১ */}
+      <group position={[-12, 0, -4]}>
+        <mesh position={[0, 4, 0]} castShadow receiveShadow>
+          <boxGeometry args={[12, 8, 12]} />
+          <meshStandardMaterial color="#f8f9fa" />
+        </mesh>
+        <mesh position={[0, 8.5, 0]} castShadow>
+          <boxGeometry args={[13, 1, 13]} />
+          <meshStandardMaterial color={isSnow ? "#ffffff" : "#2b2d42"} />
+        </mesh>
+        <mesh position={[0, 5, 6.05]}>
+          <planeGeometry args={[6, 4]} />
+          <meshStandardMaterial color="#00b4d8" transparent opacity={0.7} emissive={isNight ? "#00b4d8" : "#000"} emissiveIntensity={isNight ? 0.8 : 0} />
+        </mesh>
+      </group>
