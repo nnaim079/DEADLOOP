@@ -284,3 +284,140 @@ function PetronasTwinTowers({ position = [0, 0, 0], isNight }) {
     </group>
   );
 }
+// 🌳 ৩. আধুনিক বোটানিক্যাল পার্ক ও ওয়াকওয়ে
+function ModernParkGarden({ isNight, aiEvent, position = [180, 0, -150] }) {
+  const benches = useMemo(() => [
+    { x: -12, z: -10, rot: 0 },
+    { x: 12, z: -10, rot: Math.PI },
+    { x: -12, z: 12, rot: 0 },
+    { x: 12, z: 12, rot: Math.PI },
+    { x: 0, z: -20, rot: Math.PI / 2 },
+  ], []);
+
+  const flowerBeds = useMemo(() => {
+    const items = [];
+    for (let i = 0; i < 60; i++) {
+      items.push({
+        x: (Math.random() - 0.5) * 50,
+        z: (Math.random() - 0.5) * 50,
+        color: i % 3 === 0 ? "#ff4d6d" : (i % 3 === 1 ? "#ffb703" : "#7209b7"),
+      });
+    }
+    return items;
+  }, []);
+
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} receiveShadow>
+        <planeGeometry args={[70, 70]} />
+        <meshStandardMaterial color={aiEvent === 'WINTER' || aiEvent === 'SNOWFALL' ? "#e9ecef" : "#2d6a4f"} roughness={0.7} />
+      </mesh>
+
+      {/* একই ৮০x৮০ স্টাইলের boundary fence; park-এর চারদিক সম্পূর্ণ আবৃত */}
+      <mesh position={[0, 2.5, -35]} castShadow>
+        <boxGeometry args={[70, 5, 0.8]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      <mesh position={[-35, 2.5, 0]} castShadow>
+        <boxGeometry args={[0.8, 5, 70]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      <mesh position={[35, 2.5, 0]} castShadow>
+        <boxGeometry args={[0.8, 5, 70]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      <mesh position={[-21, 2.5, 35]} castShadow>
+        <boxGeometry args={[28, 5, 0.8]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      <mesh position={[21, 2.5, 35]} castShadow>
+        <boxGeometry args={[28, 5, 0.8]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+        <planeGeometry args={[10, 68]} />
+        <meshStandardMaterial color="#d4a373" roughness={0.4} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+        <planeGeometry args={[68, 10]} />
+        <meshStandardMaterial color="#d4a373" roughness={0.4} />
+      </mesh>
+
+      <group position={[0, 0, 34]}>
+        <mesh position={[-12, 5, 0]} ><boxGeometry args={[2, 10, 2]} /><meshStandardMaterial color="#1d3557" /></mesh>
+        <mesh position={[12, 5, 0]} ><boxGeometry args={[2, 10, 2]} /><meshStandardMaterial color="#1d3557" /></mesh>
+        <mesh position={[0, 10, 0]} ><boxGeometry args={[26, 2.5, 1]} /><meshStandardMaterial color="#457b9d" emissive={isNight ? "#457b9d" : "#000"} emissiveIntensity={isNight ? 0.8 : 0} /></mesh>
+        {/* <Text position={[0, 10, 0.6]} fontSize={1.4} color="#ffffff" anchorX="center" anchorY="middle">
+          MODERN PARK GARDEN
+        </Text> */}
+      </group>
+
+      {flowerBeds.map((f, i) => (
+        <group key={i} position={[f.x, 0, f.z]}>
+          <mesh position={[0, 0.3, 0]}>
+            <sphereGeometry args={[0.35, 8, 8]} />
+            <meshStandardMaterial color={f.color} emissive={isNight ? f.color : "#000"} emissiveIntensity={isNight ? 0.5 : 0} />
+          </mesh>
+          <mesh position={[0, 0.1, 0]}>
+            <cylinderGeometry args={[0.05, 0.05, 0.3]} />
+            <meshStandardMaterial color="#52b788" />
+          </mesh>
+        </group>
+      ))}
+
+      {benches.map((b, i) => (
+        <group key={i} position={[b.x, 0, b.z]} rotation={[0, b.rot, 0]}>
+          <mesh position={[0, 0.6, 0]} castShadow>
+            <boxGeometry args={[3.5, 0.15, 1.2]} />
+            <meshStandardMaterial color="#7f5539" />
+          </mesh>
+          <mesh position={[0, 1.1, -0.5]} castShadow>
+            <boxGeometry args={[3.5, 0.8, 0.15]} />
+            <meshStandardMaterial color="#7f5539" />
+          </mesh>
+          <mesh position={[-1.5, 0.3, 0]}><boxGeometry args={[0.2, 0.6, 1.2]} /><meshStandardMaterial color="#2b2d42" /></mesh>
+          <mesh position={[1.5, 0.3, 0]}><boxGeometry args={[0.2, 0.6, 1.2]} /><meshStandardMaterial color="#2b2d42" /></mesh>
+        </group>
+      ))}
+
+      {[[-20, -20], [20, -20], [-20, 20], [20, 20], [0, 0]].map((pos, i) => (
+        <group key={i} position={[pos[0], 0, pos[1]]}>
+          <mesh position={[0, 8, 0]} castShadow>
+            <cylinderGeometry args={[0.2, 0.35, 16]} />
+            <meshStandardMaterial color="#2b2d42" metalness={0.8} />
+          </mesh>
+          <mesh position={[0, 16.2, 0]}>
+            <boxGeometry args={[2.5, 0.4, 2.5]} />
+            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={isNight ? 3 : 0.2} />
+          </mesh>
+          {isNight && <pointLight position={[0, 15.5, 0]} intensity={5} distance={35} color="#48cae4" />}
+        </group>
+      ))}
+
+      {[[-25, -10], [25, 10], [-10, 25], [10, -25], [-25, 25], [25, -25]].map((pos, i) => (
+        <group key={i} position={[pos[0], 0, pos[1]]}>
+          <mesh position={[0, 3, 0]} castShadow><cylinderGeometry args={[0.4, 0.6, 6]} /><meshStandardMaterial color="#582f0e" /></mesh>
+          <mesh position={[0, 7, 0]} castShadow><sphereGeometry args={[3.2, 16, 16]} /><meshStandardMaterial color="#2d6a4f" /></mesh>
+          {[
+            [-1.8, 5.2, 0.4],
+            [1.6, 6.1, 0.2],
+            [0, 7.8, 1.5],
+            [-0.6, 8.2, -1.2]
+          ].map((lightPosition, lightIndex) => {
+            const lightColors = ["#ff4d6d", "#ffbe0b", "#00f5d4", "#9b5de5"];
+            const lightColor = lightColors[(i + lightIndex) % lightColors.length];
+            return (
+              <mesh key={`tree-chili-light-${lightIndex}`} position={lightPosition}>
+                <sphereGeometry args={[0.22, 10, 10]} />
+                <meshStandardMaterial
+                  color={lightColor}
+                  emissive={lightColor}
+                  emissiveIntensity={isNight ? 5 : 0.35}
+                  roughness={0.25}
+                />
+              </mesh>
+            );
+          })}
+        </group>
+      ))}
