@@ -830,3 +830,269 @@ function ModernResidentialNeighborhood({ position, rotation = [0, 0, 0], isNight
           <meshStandardMaterial color="#00b4d8" transparent opacity={0.7} emissive={isNight ? "#00b4d8" : "#000"} emissiveIntensity={isNight ? 0.8 : 0} />
         </mesh>
       </group>
+
+{/* মডার্ন ভিলা ২ */}
+      <group position={[12, 0, -4]}>
+        <mesh position={[0, 4.5, 0]} castShadow receiveShadow>
+          <boxGeometry args={[12, 9, 12]} />
+          <meshStandardMaterial color="#e9c46a" />
+        </mesh>
+        <mesh position={[0, 9.5, 0]} castShadow>
+          <coneGeometry args={[9, 4, 4]} rotation={[0, Math.PI / 4, 0]} />
+          <meshStandardMaterial color={isSnow ? "#ffffff" : "#e76f51"} />
+        </mesh>
+        <mesh position={[0, 4, 6.05]}>
+          <planeGeometry args={[7, 4]} />
+          <meshStandardMaterial color="#caf0f8" transparent opacity={0.8} />
+        </mesh>
+      </group>
+
+      {[-18, 0, 18].map((x, i) => (
+        <group key={i} position={[x, 0, 11]}>
+          <mesh position={[0, 3, 0]} castShadow><cylinderGeometry args={[0.1, 0.1, 6]} /><meshStandardMaterial color="#212529" /></mesh>
+          <mesh position={[0, 6, 0]}><sphereGeometry args={[0.4, 16, 16]} /><meshStandardMaterial color={isNight ? "#ffea00" : "#ffffff"} emissive={isNight ? "#ffea00" : "#000"} emissiveIntensity={isNight ? 2.5 : 0} /></mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+// 🌧️❄️🌸🍂☀️🌾 ৬. আবহাওয়া ও ঋতু সিস্টেম
+function WeatherEffects({ aiEvent }) {
+  const rainRef = useRef();
+  const snowRef = useRef();
+  const petalRef = useRef();
+  const autumnLeafRef = useRef();
+  const lateAutumnLeafRef = useRef();
+  const [flash, setFlash] = useState(false);
+
+  const rainCount = 2000;
+  const rainPositions = useMemo(() => {
+    const pos = new Float32Array(rainCount * 3);
+    for (let i = 0; i < rainCount * 3; i += 3) {
+      pos[i] = (Math.random() - 0.5) * 850;
+      pos[i + 1] = Math.random() * 80;
+      pos[i + 2] = (Math.random() - 0.5) * 850;
+    }
+    return pos;
+  }, []);
+
+  const snowCount = 2000;
+  const snowPositions = useMemo(() => {
+    const pos = new Float32Array(snowCount * 3);
+    for (let i = 0; i < snowCount * 3; i += 3) {
+      pos[i] = (Math.random() - 0.5) * 850;
+      pos[i + 1] = Math.random() * 80;
+      pos[i + 2] = (Math.random() - 0.5) * 850;
+    }
+    return pos;
+  }, []);
+
+  const petalCount = 1000;
+  const petalPositions = useMemo(() => {
+    const pos = new Float32Array(petalCount * 3);
+    for (let i = 0; i < petalCount * 3; i += 3) {
+      pos[i] = (Math.random() - 0.5) * 350;
+      pos[i + 1] = Math.random() * 50;
+      pos[i + 2] = (Math.random() - 0.5) * 350;
+    }
+    return pos;
+  }, []);
+
+  const leafCount = 1000;
+  const leafPositions = useMemo(() => {
+    const pos = new Float32Array(leafCount * 3);
+    for (let i = 0; i < leafCount * 3; i += 3) {
+      pos[i] = (Math.random() - 0.5) * 350;
+      pos[i + 1] = Math.random() * 50;
+      pos[i + 2] = (Math.random() - 0.5) * 350;
+    }
+    return pos;
+  }, []);
+
+  const lateLeafCount = 700;
+  const lateLeafPositions = useMemo(() => {
+    const pos = new Float32Array(lateLeafCount * 3);
+    for (let i = 0; i < lateLeafCount * 3; i += 3) {
+      pos[i] = (Math.random() - 0.5) * 350;
+      pos[i + 1] = Math.random() * 50;
+      pos[i + 2] = (Math.random() - 0.5) * 350;
+    }
+    return pos;
+  }, []);
+
+  useFrame((_, delta) => {
+    if ((aiEvent === 'MONSOON' || aiEvent === 'RAIN_STORM') && rainRef.current) {
+      const positionAttr = rainRef.current.geometry.attributes.position;
+      const array = positionAttr.array;
+      for (let i = 1; i < rainCount * 3; i += 3) {
+        array[i] -= delta * 100;
+        if (array[i] < 0) array[i] = 100;
+      }
+      positionAttr.needsUpdate = true;
+    }
+
+    if ((aiEvent === 'WINTER' || aiEvent === 'SNOWFALL') && snowRef.current) {
+      const positionAttr = snowRef.current.geometry.attributes.position;
+      const array = positionAttr.array;
+      for (let i = 1; i < snowCount * 3; i += 3) {
+        array[i] -= delta * 12;
+        array[i - 1] += Math.sin(array[i] * 0.05) * 0.08;
+        if (array[i] < 0) array[i] = 100;
+      }
+      positionAttr.needsUpdate = true;
+    }
+
+    if (aiEvent === 'SPRING' && petalRef.current) {
+      const positionAttr = petalRef.current.geometry.attributes.position;
+      const array = positionAttr.array;
+      for (let i = 1; i < petalCount * 3; i += 3) {
+        array[i] -= delta * 5;
+        array[i - 1] += Math.sin(array[i] * 0.1) * 0.12;
+        if (array[i] < 0) array[i] = 50;
+      }
+      positionAttr.needsUpdate = true;
+    }
+
+    if (aiEvent === 'AUTUMN' && autumnLeafRef.current) {
+      const positionAttr = autumnLeafRef.current.geometry.attributes.position;
+      const array = positionAttr.array;
+      for (let i = 1; i < leafCount * 3; i += 3) {
+        array[i] -= delta * 7;
+        array[i - 1] += Math.cos(array[i] * 0.1) * 0.18;
+        if (array[i] < 0) array[i] = 50;
+      }
+      positionAttr.needsUpdate = true;
+    }
+
+    if (aiEvent === 'LATE_AUTUMN' && lateAutumnLeafRef.current) {
+      const positionAttr = lateAutumnLeafRef.current.geometry.attributes.position;
+      const array = positionAttr.array;
+      for (let i = 1; i < lateLeafCount * 3; i += 3) {
+        array[i] -= delta * 4;
+        array[i - 1] += Math.sin(array[i] * 0.08) * 0.1;
+        if (array[i] < 0) array[i] = 50;
+      }
+      positionAttr.needsUpdate = true;
+    }
+  });
+
+  useEffect(() => {
+    if (aiEvent === 'MONSOON' || aiEvent === 'RAIN_STORM') {
+      const interval = setInterval(() => {
+        if (Math.random() > 0.5) {
+          setFlash(true);
+          setTimeout(() => setFlash(false), 120);
+        }
+      }, 2000);
+      return () => clearInterval(interval);
+    } else {
+      setFlash(false);
+    }
+  }, [aiEvent]);
+
+  return (
+    <group>
+      {flash && <directionalLight position={[0, 80, 0]} intensity={15} color="#caf0f8" />}
+
+      {(aiEvent === 'MONSOON' || aiEvent === 'RAIN_STORM') && (
+        <points ref={rainRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" count={rainCount} array={rainPositions} itemSize={3} />
+          </bufferGeometry>
+          <pointsMaterial color="#a2d2ff" size={0.4} transparent opacity={0.8} depthWrite={false} />
+        </points>
+      )}
+
+      {(aiEvent === 'WINTER' || aiEvent === 'SNOWFALL') && (
+        <points ref={snowRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" count={snowCount} array={snowPositions} itemSize={3} />
+          </bufferGeometry>
+          <pointsMaterial color="#ffffff" size={0.65} transparent opacity={0.9} depthWrite={false} />
+        </points>
+      )}
+
+      {aiEvent === 'SPRING' && (
+        <points ref={petalRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" count={petalCount} array={petalPositions} itemSize={3} />
+          </bufferGeometry>
+          <pointsMaterial color="#ffb7c5" size={0.55} transparent opacity={0.85} depthWrite={false} />
+        </points>
+      )}
+
+      {aiEvent === 'AUTUMN' && (
+        <points ref={autumnLeafRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" count={leafCount} array={leafPositions} itemSize={3} />
+          </bufferGeometry>
+          <pointsMaterial color="#fb8500" size={0.6} transparent opacity={0.9} depthWrite={false} />
+        </points>
+      )}
+
+      {aiEvent === 'LATE_AUTUMN' && (
+        <points ref={lateAutumnLeafRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" count={lateLeafCount} array={lateLeafPositions} itemSize={3} />
+          </bufferGeometry>
+          <pointsMaterial color="#d4a373" size={0.5} transparent opacity={0.8} depthWrite={false} />
+        </points>
+      )}
+    </group>
+  );
+}
+
+// ☁️ ডাইনামিক ক্লাউড
+function DynamicClouds({ isNight, aiEvent }) {
+  const cloudGroupRef = useRef();
+
+  const clouds = useMemo(() => [
+    { x: -55, y: 38, z: -72, scale: 2.4, color: "#f8f9fa", opacity: 0.78, shape: "light" },
+    { x: -20, y: 52, z: -92, scale: 3.0, color: "#ffffff", opacity: 0.88, shape: "soft" },
+    { x: 18, y: 34, z: -65, scale: 2.7, color: "#adb5bd", opacity: 0.72, shape: "heavy" },
+    { x: 55, y: 68, z: -112, scale: 3.2, color: "#e9ecef", opacity: 0.82, shape: "tower" },
+    { x: -38, y: 44, z: -130, scale: 2.6, color: "#6c757d", opacity: 0.62, shape: "storm" },
+    { x: 42, y: 40, z: -82, scale: 2.3, color: "#ffffff", opacity: 0.8, shape: "light" },
+    { x: -78, y: 63, z: -150, scale: 2.8, color: "#ced4da", opacity: 0.76, shape: "soft" },
+    { x: 8, y: 78, z: -168, scale: 2.5, color: "#495057", opacity: 0.58, shape: "storm" },
+    { x: -12, y: 32, z: -105, scale: 2.1, color: "#ffffff", opacity: 0.72, shape: "light" },
+    { x: 72, y: 55, z: -142, scale: 2.8, color: "#dee2e6", opacity: 0.8, shape: "soft" },
+    { x: -68, y: 82, z: -178, scale: 2.6, color: "#868e96", opacity: 0.6, shape: "heavy" },
+    { x: 25, y: 60, z: -190, scale: 3.4, color: "#f1f3f5", opacity: 0.84, shape: "tower" },
+  ], []);
+
+  useFrame((state, delta) => {
+    if (cloudGroupRef.current) {
+      cloudGroupRef.current.position.x += delta * 2.0;
+      if (cloudGroupRef.current.position.x > 120) {
+        cloudGroupRef.current.position.x = -120;
+      }
+
+      const time = state.clock.getElapsedTime();
+      cloudGroupRef.current.children.forEach((cloud, idx) => {
+        cloud.position.y += Math.sin(time * 0.8 + idx) * 0.015;
+      });
+    }
+  });
+
+  return (
+    <group ref={cloudGroupRef}>
+      {clouds.map((c, i) => {
+        const opacity = aiEvent === 'HEAVY_FOG' || aiEvent === 'LATE_AUTUMN'
+          ? 0.95
+          : (isNight ? c.opacity * 0.45 : c.opacity);
+        const color = aiEvent === 'MONSOON' || aiEvent === 'RAIN_STORM' ? "#333333" : c.color;
+        const shapeScale = c.shape === "tower" ? [0.85, 1.35, 0.9] : (c.shape === "heavy" ? [1.3, 0.8, 1.1] : [1, 1, 1]);
+        return (
+        <group key={i} position={[c.x, c.y, c.z]} scale={[c.scale * shapeScale[0], c.scale * shapeScale[1], c.scale * shapeScale[2]]}>
+          <mesh position={[0, 0, 0]}><sphereGeometry args={[4.5, 12, 12]} /><meshStandardMaterial color={color} transparent opacity={opacity} /></mesh>
+          <mesh position={[3.2, 0.6, 1.2]}><sphereGeometry args={[3.5, 12, 12]} /><meshStandardMaterial color={color} transparent opacity={opacity * 0.92} /></mesh>
+          <mesh position={[-3.2, 0.4, -0.8]}><sphereGeometry args={[3.2, 12, 12]} /><meshStandardMaterial color={color} transparent opacity={opacity * 0.88} /></mesh>
+          {c.shape === "storm" && <mesh position={[0, -2.8, 0]}><sphereGeometry args={[2.8, 12, 8]} /><meshStandardMaterial color={color} transparent opacity={opacity * 0.7} /></mesh>}
+        </group>
+        );
+      })}
+    </group>
+  );
+}
