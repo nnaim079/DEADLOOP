@@ -595,3 +595,142 @@ function ModernParkGarden({ isNight, aiEvent, position = [180, 0, -150] }) {
         );
       }
       
+// 🎡 ৪. থিম পার্ক (Theme Park Area with Fixed Boundaries & Z-Fix)
+function ThemeParkComplex({ position, isNight }) {
+  const wheelRef = useRef();
+
+  useFrame((_, delta) => {
+    if (wheelRef.current) {
+      wheelRef.current.rotation.z += delta * 0.4;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* 🟢 ১. গ্রাউন্ড বেজ (আকার বাড়িয়ে ৮০x৮০ করা হয়েছে + Z-Fighting ফিক্সের জন্য polygonOffset) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} receiveShadow>
+        <planeGeometry args={[80, 80]} />
+        <meshStandardMaterial
+          color="#52b788"
+          polygonOffset
+          polygonOffsetFactor={-1}
+        />
+      </mesh>
+
+      {/* 🔴 ২. বাউন্ডারি দেয়াল / ফেঞ্চ (৮০x৮০ পার্ককে পুরোপুরি কভার করবে) */}
+      {/* পিছনের দেয়াল */}
+      <mesh position={[0, 2.5, -40]} castShadow>
+        <boxGeometry args={[80, 5, 0.8]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      {/* বামের দেয়াল */}
+      <mesh position={[-40, 2.5, 0]} castShadow>
+        <boxGeometry args={[0.8, 5, 80]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      {/* ডানের দেয়াল */}
+      <mesh position={[40, 2.5, 0]} castShadow>
+        <boxGeometry args={[0.8, 5, 80]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      {/* সামনের দেয়াল (বাম অংশ) */}
+      <mesh position={[-24, 2.5, 40]} castShadow>
+        <boxGeometry args={[32, 5, 0.8]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+      {/* সামনের দেয়াল (ডান অংশ) */}
+      <mesh position={[24, 2.5, 40]} castShadow>
+        <boxGeometry args={[32, 5, 0.8]} />
+        <meshStandardMaterial color="#1d3557" />
+      </mesh>
+
+      {/* 🚪 ৩. এন্ট্রেন্স গেট ও সাইনবোর্ড (Z: 40 ফেঞ্চ লাইনে বসানো হয়েছে) */}
+      <group position={[0, 0, 40]}>
+        <mesh position={[-7, 4, 0]} castShadow>
+          <boxGeometry args={[1.8, 8, 1.8]} />
+          <meshStandardMaterial color="#2b2d42" />
+        </mesh>
+        <mesh position={[7, 4, 0]} castShadow>
+          <boxGeometry args={[1.8, 8, 1.8]} />
+          <meshStandardMaterial color="#2b2d42" />
+        </mesh>
+
+        <mesh position={[0, 8.5, 0]}>
+          <boxGeometry args={[16, 2.5, 1.2]} />
+          <meshStandardMaterial
+            color="#ff0054"
+            emissive={isNight ? "#ff0054" : "#000"}
+            emissiveIntensity={isNight ? 0.8 : 0}
+          />
+        </mesh>
+
+        {/* <Text
+          position={[0, 8.5, 0.7]}
+          fontSize={1.3}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+        >
+          GRAND FUN PARK
+        </Text> */}
+
+        <mesh position={[-7, 8.2, 0.9]}>
+          <boxGeometry args={[1, 0.3, 0.3]} />
+          <meshStandardMaterial color="#4cc9f0" emissive="#4cc9f0" emissiveIntensity={isNight ? 3 : 0.2} />
+        </mesh>
+        <mesh position={[7, 8.2, 0.9]}>
+          <boxGeometry args={[1, 0.3, 0.3]} />
+          <meshStandardMaterial color="#4cc9f0" emissive="#4cc9f0" emissiveIntensity={isNight ? 3 : 0.2} />
+        </mesh>
+
+        {isNight && (
+          <>
+            <spotLight position={[-7, 9, 2]} target-position={[0, 0, 40]} intensity={8} distance={25} color="#ff0054" angle={0.6} />
+            <spotLight position={[7, 9, 2]} target-position={[0, 0, 40]} intensity={8} distance={25} color="#4cc9f0" angle={0.6} />
+            <pointLight position={[0, 7, -1]} intensity={4} distance={15} color="#ffea00" />
+          </>
+        )}
+
+        {[-4, 4].map((xOffset, i) => (
+          <mesh key={i} position={[xOffset, 0.1, -2]}>
+            <cylinderGeometry args={[0.3, 0.3, 0.2]} />
+            <meshStandardMaterial color="#ffea00" emissive={isNight ? "#ffea00" : "#000"} emissiveIntensity={isNight ? 2 : 0} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* 🪧 ৪. রাইড সাইনবোর্ডসমূহ */}
+      <group position={[-12, 0, 24]} rotation={[0, Math.PI / 6, 0]}>
+        <mesh position={[0, 1.5, 0]}><cylinderGeometry args={[0.1, 0.1, 3]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh position={[0, 3, 0]}><boxGeometry args={[4, 1.2, 0.2]} /><meshStandardMaterial color="#ffb703" /></mesh>
+        {/* <Text position={[0, 3, 0.15]} fontSize={0.4} color="#000000" anchorX="center" anchorY="middle">
+          FERRIS WHEEL 🎡
+        </Text> */}
+      </group>
+
+      <group position={[12, 0, 24]} rotation={[0, -Math.PI / 6, 0]}>
+        <mesh position={[0, 1.5, 0]}><cylinderGeometry args={[0.1, 0.1, 3]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh position={[0, 3, 0]}><boxGeometry args={[4, 1.2, 0.2]} /><meshStandardMaterial color="#ff5500" /></mesh>
+        {/* <Text position={[0, 3, 0.15]} fontSize={0.4} color="#ffffff" anchorX="center" anchorY="middle">
+          ROLLER COASTER 🎢
+        </Text> */}
+      </group>
+
+      {/* 🎡 ৫. ফেরিস হুইল (ভেতরের সেফ পজিশনে) */}
+      <group position={[-20, 0, -10]}>
+        <mesh position={[-3, 12, 0]} rotation={[0, 0, -0.3]}><cylinderGeometry args={[0.4, 0.6, 24]} /><meshStandardMaterial color="#ffb703" /></mesh>
+        <mesh position={[3, 12, 0]} rotation={[0, 0, 0.3]}><cylinderGeometry args={[0.4, 0.6, 24]} /><meshStandardMaterial color="#ffb703" /></mesh>
+        
+        <group ref={wheelRef} position={[0, 20, 0]}>
+          <mesh><torusGeometry args={[11, 0.4, 16, 32]} /><meshStandardMaterial color="#4cc9f0" emissive={isNight ? "#4cc9f0" : "#000"} emissiveIntensity={isNight ? 1.5 : 0} /></mesh>
+          {Array.from({ length: 8 }).map((_, i) => {
+            const angle = (i * Math.PI) / 4;
+            return (
+              <group key={i} rotation={[0, 0, angle]}>
+                <mesh position={[0, 0, 0]}><boxGeometry args={[0.15, 22, 0.15]} /><meshStandardMaterial color="#ffffff" /></mesh>
+                <mesh position={[0, 11, 0]}><boxGeometry args={[1.8, 1.8, 1.8]} /><meshStandardMaterial color="#ff0054" emissive={isNight ? "#ffea00" : "#000"} emissiveIntensity={isNight ? 1.5 : 0} /></mesh>
+              </group>
+            );
+          })}
+        </group>
+      </group>
