@@ -186,3 +186,101 @@ function FactorySmoke({ position }) {
     </group>
   );
 }
+
+// 🏙️ ১. Shanghai Tower (অত্যাধুনিক স্পাইরালিং গ্লাস টাওয়ার)
+function ShanghaiTower({ position = [0, 0, 0], isNight }) {
+  const towerRef = useRef();
+
+  useFrame((_, delta) => {
+    if (towerRef.current) {
+      towerRef.current.rotation.y += delta * 0.05;
+    }
+  });
+
+  const tiers = useMemo(() => {
+    return Array.from({ length: 9 }, (_, i) => ({
+      y: i * 8 + 4,
+      radiusTop: 6 - i * 0.45,
+      radiusBottom: 6.8 - i * 0.45,
+      rotation: (i * Math.PI) / 12,
+    }));
+  }, []);
+
+  return (
+    <group position={position}>
+      <group ref={towerRef}>
+        {tiers.map((t, i) => (
+          <group key={i} position={[0, t.y, 0]} rotation={[0, t.rotation, 0]}>
+            <mesh castShadow receiveShadow>
+              <cylinderGeometry args={[t.radiusTop, t.radiusBottom, 8, 7]} />
+              <meshStandardMaterial
+                color={isNight ? "#0077b6" : "#48cae4"}
+                metalness={0.9}
+                roughness={0.1}
+                transparent
+                opacity={0.85}
+                emissive={isNight ? "#00b4d8" : "#000000"}
+                emissiveIntensity={isNight ? 0.6 : 0}
+              />
+            </mesh>
+            <mesh position={[0, 4, 0]}>
+              <torusGeometry args={[t.radiusTop + 0.1, 0.15, 16, 32]} />
+              <meshStandardMaterial color="#00f5d4" emissive="#00f5d4" emissiveIntensity={isNight ? 2 : 0.2} />
+            </mesh>
+          </group>
+        ))}
+      </group>
+
+      <mesh position={[0, 78, 0]} castShadow>
+        <coneGeometry args={[1.2, 14, 8]} />
+        <meshStandardMaterial color="#00f5d4" metalness={0.9} emissive={isNight ? "#00f5d4" : "#000000"} emissiveIntensity={isNight ? 2.5 : 0} />
+      </mesh>
+    </group>
+  );
+}
+
+// 🏙️ ২. Petronas Twin Towers (টুইন টাওয়ারস ও স্কাইব্রিজ)
+function PetronasTwinTowers({ position = [0, 0, 0], isNight }) {
+  const towerSpacing = 14;
+
+  const renderSingleTower = (xOffset) => (
+    <group position={[xOffset, 0, 0]}>
+      {[
+        { y: 15, radius: 4.5, h: 30 },
+        { y: 36, radius: 3.6, h: 12 },
+        { y: 46, radius: 2.8, h: 8 },
+        { y: 53, radius: 2.0, h: 6 },
+      ].map((tier, idx) => (
+        <mesh key={idx} position={[0, tier.y, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[tier.radius * 0.85, tier.radius, tier.h, 16]} />
+          <meshStandardMaterial color="#d8f3dc" metalness={0.9} roughness={0.15} emissive={isNight ? "#90e0ef" : "#000000"} emissiveIntensity={isNight ? 0.5 : 0} />
+        </mesh>
+      ))}
+      <mesh position={[0, 62, 0]} castShadow>
+        <coneGeometry args={[0.8, 12, 16]} />
+        <meshStandardMaterial color="#ffffff" metalness={0.95} emissive={isNight ? "#ffffff" : "#000000"} emissiveIntensity={isNight ? 2 : 0} />
+      </mesh>
+    </group>
+  );
+
+  return (
+    <group position={position}>
+      {renderSingleTower(-towerSpacing / 2)}
+      {renderSingleTower(towerSpacing / 2)}
+      <group position={[0, 32, 0]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[towerSpacing, 2.2, 3]} />
+          <meshStandardMaterial color="#bde0fe" metalness={0.8} roughness={0.2} transparent opacity={0.9} />
+        </mesh>
+        <mesh position={[0, -2, 0]} rotation={[0, 0, 0.4]}>
+          <cylinderGeometry args={[0.2, 0.2, 8]} />
+          <meshStandardMaterial color="#48cae4" />
+        </mesh>
+        <mesh position={[0, -2, 0]} rotation={[0, 0, -0.4]}>
+          <cylinderGeometry args={[0.2, 0.2, 8]} />
+          <meshStandardMaterial color="#48cae4" />
+        </mesh>
+      </group>
+    </group>
+  );
+}
