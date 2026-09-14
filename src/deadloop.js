@@ -421,3 +421,177 @@ function ModernParkGarden({ isNight, aiEvent, position = [180, 0, -150] }) {
           })}
         </group>
       ))}
+
+       {/* পার্কের walkway জুড়ে ছোট মরিচ-বাতির মতো colourful garden lights */}
+            {Array.from({ length: 24 }, (_, i) => {
+              const side = i % 4;
+              const step = Math.floor(i / 4) * 10 - 25;
+              const position = side === 0 ? [step, 1.15, -5.8]
+                : side === 1 ? [step, 1.15, 5.8]
+                  : side === 2 ? [-5.8, 1.15, step]
+                    : [5.8, 1.15, step];
+              const colors = ["#ff4d6d", "#ffbe0b", "#00f5d4", "#9b5de5"];
+              return (
+                <mesh key={`garden-string-light-${i}`} position={position}>
+                  <sphereGeometry args={[0.28, 8, 8]} />
+                  <meshStandardMaterial
+                    color={colors[i % colors.length]}
+                    emissive={colors[i % colors.length]}
+                    emissiveIntensity={isNight ? 4 : 0.25}
+                  />
+                </mesh>
+              );
+            })}
+          </group>
+        );
+      }
+      
+      // 🎋 🌳 বাঁশ ঝাড়, বটগাছ ও বড় ফুল গাছ (Custom Vegetation Elements)
+      function BambooGrove({ position }) {
+        const stalks = useMemo(() => Array.from({ length: 14 }, () => ({
+          x: (Math.random() - 0.5) * 6,
+          z: (Math.random() - 0.5) * 6,
+          h: 12 + Math.random() * 6
+        })), []);
+      
+        return (
+          <group position={position}>
+            {stalks.map((s, i) => (
+              <group key={i} position={[s.x, 0, s.z]}>
+                <mesh position={[0, s.h / 2, 0]} castShadow>
+                  <cylinderGeometry args={[0.12, 0.18, s.h, 8]} />
+                  <meshStandardMaterial color="#38b000" />
+                </mesh>
+                {[0.3, 0.6, 0.8].map((factor, k) => (
+                  <mesh key={k} position={[0, s.h * factor, 0]}>
+                    <torusGeometry args={[0.2, 0.05, 8, 12]} rotation={[Math.PI / 2, 0, 0]} />
+                    <meshStandardMaterial color="#70e000" />
+                  </mesh>
+                ))}
+                <mesh position={[0, s.h + 1, 0]}>
+                  <sphereGeometry args={[1.5, 8, 8]} />
+                  <meshStandardMaterial color="#55a630" />
+                </mesh>
+              </group>
+            ))}
+          </group>
+        );
+      }
+      
+      function BanyanTree({ position }) {
+        return (
+          <group position={position}>
+            {/* বিশাল কাণ্ড ও ঝুড়ি মূল */}
+            <mesh position={[0, 5, 0]} castShadow>
+              <cylinderGeometry args={[2.5, 4, 10, 12]} />
+              <meshStandardMaterial color="#3d2314" roughness={0.9} />
+            </mesh>
+            {[-2, 0, 2].map((x, i) => (
+              <mesh key={i} position={[x, 3, 1]} rotation={[0, 0, 0.2 * (i - 1)]}>
+                <cylinderGeometry args={[0.3, 0.5, 6]} />
+                <meshStandardMaterial color="#2c180b" />
+              </mesh>
+            ))}
+            {/* বটগাছের বিশাল ছাতা আকারের ক্যানোপি */}
+            <mesh position={[0, 12, 0]} castShadow>
+              <sphereGeometry args={[9, 24, 16]} scale={[1.4, 0.6, 1.4]} />
+              <meshStandardMaterial color="#1b4332" roughness={0.6} />
+            </mesh>
+          </group>
+        );
+      }
+      
+      function BigFlowerTree({ position, flowerColor = "#ff4d6d" }) {
+        return (
+          <group position={position}>
+            <mesh position={[0, 4, 0]} castShadow>
+              <cylinderGeometry args={[0.6, 1.0, 8]} />
+              <meshStandardMaterial color="#582f0e" />
+            </mesh>
+            <mesh position={[0, 10, 0]} castShadow>
+              <dodecahedronGeometry args={[5, 1]} />
+              <meshStandardMaterial color={flowerColor} emissive={flowerColor} emissiveIntensity={0.2} />
+            </mesh>
+          </group>
+        );
+      }
+      
+      // 🌴🌿 amusement park ও jungle-এর পাশে decorative botanical expansion
+      function ScenicTreeExpansion({ isNight }) {
+        const lightColors = ["#ff4d6d", "#ffbe0b", "#00f5d4", "#9b5de5"];
+        const spiralPositions = (x, z, height, radius) =>
+          Array.from({ length: 8 }, (_, i) => {
+            const angle = (i / 8) * Math.PI * 2;
+            return [x + Math.cos(angle) * radius, 1.5 + (i / 7) * height, z + Math.sin(angle) * radius];
+          });
+      
+        const palmPositions = [[218, 122], [252, 140], [218, 178], [152, 188], [-96, 118], [-74, 158]];
+        const bambooPositions = [[230, 108], [265, 165], [-95, 105], [-70, 185]];
+        const tulipPositions = [[235, 195], [275, 115], [-90, 205], [-55, 125]];
+        const maplePositions = [[125, 125], [270, 190], [-70, 105], [-105, 190]];
+      
+        return (
+          <group>
+            {palmPositions.map(([x, z], i) => (
+              <group key={`palm-${i}`} position={[x, 0, z]}>
+                <mesh position={[0, 7, 0]} rotation={[0, 0, i % 2 ? 0.08 : -0.08]}>
+                  <cylinderGeometry args={[0.55, 0.9, 14, 10]} />
+                  <meshStandardMaterial color="#8d5524" roughness={0.8} />
+                </mesh>
+                <mesh position={[0, 15, 0]} scale={[1.5, 0.42, 1.5]}>
+                  <sphereGeometry args={[5, 12, 8]} />
+                  <meshStandardMaterial color="#168aad" roughness={0.7} />
+                </mesh>
+                {spiralPositions(0, 0, 11, 1.15).map((position, lightIndex) => (
+                  <mesh key={lightIndex} position={position}>
+                    <sphereGeometry args={[0.3, 8, 8]} />
+                    <meshStandardMaterial color={lightColors[(i + lightIndex) % 4]} emissive={lightColors[(i + lightIndex) % 4]} emissiveIntensity={isNight ? 4 : 0.25} />
+                  </mesh>
+                ))}
+              </group>
+            ))}
+      
+            {bambooPositions.map(([x, z], i) => (
+              <group key={`bamboo-${i}`} position={[x, 0, z]}>
+                {Array.from({ length: 9 }, (_, stalk) => (
+                  <group key={stalk} position={[(stalk % 3 - 1) * 1.2, 0, (Math.floor(stalk / 3) - 1) * 1.2]}>
+                    <mesh position={[0, 7, 0]}>
+                      <cylinderGeometry args={[0.16, 0.25, 14 + (stalk % 3), 8]} />
+                      <meshStandardMaterial color="#2d6a4f" roughness={0.75} />
+                    </mesh>
+                    <mesh position={[0, 14.5, 0]}>
+                      <sphereGeometry args={[1.2, 8, 6]} />
+                      <meshStandardMaterial color="#52b788" />
+                    </mesh>
+                  </group>
+                ))}
+              </group>
+            ))}
+      
+            {tulipPositions.map(([x, z], i) => (
+              <group key={`tulip-${i}`} position={[x, 0, z]}>
+                {Array.from({ length: 7 }, (_, flower) => (
+                  <group key={flower} position={[(flower % 3 - 1) * 1.5, 0, (Math.floor(flower / 3) - 1) * 1.5]}>
+                    <mesh position={[0, 2.3, 0]}><cylinderGeometry args={[0.08, 0.08, 4.5, 6]} /><meshStandardMaterial color="#40916c" /></mesh>
+                    <mesh position={[0, 4.8, 0]}><sphereGeometry args={[0.65, 10, 8]} /><meshStandardMaterial color={["#ff006e", "#ffbe0b", "#8338ec"][flower % 3]} emissive={isNight ? ["#ff006e", "#ffbe0b", "#8338ec"][flower % 3] : "#000000"} emissiveIntensity={isNight ? 1.2 : 0} /></mesh>
+                  </group>
+                ))}
+              </group>
+            ))}
+      
+            {maplePositions.map(([x, z], i) => (
+              <group key={`maple-${i}`} position={[x, 0, z]}>
+                <mesh position={[0, 5, 0]}><cylinderGeometry args={[0.6, 1, 10, 10]} /><meshStandardMaterial color="#5c3d2e" roughness={0.85} /></mesh>
+                <mesh position={[0, 11, 0]} scale={[1.5, 0.8, 1.35]}><sphereGeometry args={[5, 14, 10]} /><meshStandardMaterial color={["#e63946", "#f77f00", "#d00000"][i % 3]} roughness={0.7} /></mesh>
+                {spiralPositions(0, 0, 8, 1.7).slice(0, 6).map((position, lightIndex) => (
+                  <mesh key={lightIndex} position={position}>
+                    <sphereGeometry args={[0.27, 8, 8]} />
+                    <meshStandardMaterial color={lightColors[(i + lightIndex + 1) % 4]} emissive={lightColors[(i + lightIndex + 1) % 4]} emissiveIntensity={isNight ? 4 : 0.25} />
+                  </mesh>
+                ))}
+              </group>
+            ))}
+          </group>
+        );
+      }
+      
